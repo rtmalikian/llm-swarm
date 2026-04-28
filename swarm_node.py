@@ -143,6 +143,50 @@ async def generate(prompt: str):
     
     return {"error": "No peers found to complete the chain"}
 
+@app.post("/v1/chat/completions")
+async def chat_completions(request: Request):
+    """OpenAI-compatible endpoint for agents like Hermes."""
+    if not config.is_entry:
+        return {"error": "Not an entry node. Connect to the Entry Node to use the API."}
+    
+    body = await request.json()
+    messages = body.get("messages", [])
+    if not messages:
+        return {"error": "No messages provided"}
+        
+    prompt = messages[-1].get("content", "")
+    print(f"[{config.node_id}] Agent Request Received: {prompt[:50]}...")
+    
+    # Trigger the Swarm Pipeline
+    swarm_result = await generate(prompt)
+    
+    # In a real scenario, the 'final_tensor' would be decoded into tokens/text.
+    response_content = "Swarm Response: [Inference complete across the grid]"
+    if "error" in swarm_result:
+        response_content = f"Swarm Error: {swarm_result['error']}"
+    elif "status" in swarm_result and swarm_result["status"] == "complete":
+        response_content = f"This is a response generated via the LLM Swarm mesh. Pipeline successful!"
+
+    return {
+        "id": f"chatcmpl-{int(time.time())}",
+        "object": "chat.completion",
+        "created": int(time.time()),
+        "model": config.model_id,
+        "choices": [{
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": response_content
+            },
+            "finish_reason": "stop"
+        }],
+        "usage": {
+            "prompt_tokens": len(prompt.split()),
+            "completion_tokens": 20,
+            "total_tokens": len(prompt.split()) + 20
+        }
+    }
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=9000)
