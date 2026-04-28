@@ -8,7 +8,7 @@
 
 ## 🌟 Key Features
 
-- **Distributed Layer Execution:** Split large models (e.g., Llama-3 70B) across multiple consumer devices.
+- **Distributed Layer Execution:** Split large models (e.g., Qwen3.5 27B) across multiple consumer devices.
 - **P2P Pipeline Parallelism:** Tensors are passed seamlessly through a mesh of nodes for collaborative inference.
 - **Dynamic Peer Discovery:** Automatic node registration via a centralized Tracker Node.
 - **Multi-Platform Docker Support:** Seamlessly run on M1 Mac, Linux (Ubuntu), and Windows.
@@ -27,11 +27,13 @@ source llm_pool_venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Prepare your Model Slice
-You don't need the whole model! Download the GGUF and slice only the layers you want to contribute (e.g., layers 11-20).
+### 2. Prepare the Model
+For the most robust experience, all participants should use the same GGUF model:
+- **Model:** [Qwen3.5-27B-Instruct GGUF (bartowski)](https://huggingface.co/bartowski/Qwen_Qwen3.5-27B-GGUF)
+- **Quantization:** `Qwen_Qwen3.5-27B-Q4_K_M.gguf`
+
 ```bash
-# Example: Contribution layers 11-20 of Qwen-27B
-python slice_model.py Qwen_Qwen3.5-27B-Q4_K_M.gguf qwen_slice_11_20.gguf 11 20
+huggingface-cli download bartowski/Qwen_Qwen3.5-27B-GGUF --include "Qwen_Qwen3.5-27B-Q4_K_M.gguf" --local-dir ./
 ```
 
 ### 3. Start your Worker Node
@@ -41,14 +43,20 @@ export TRACKER_URL="https://your-leader-id.ngrok-free.app"
 export NODE_ID="Volunteer_Node_$(hostname)"
 export LAYER_START=11
 export LAYER_END=20
-export MODEL_PATH="qwen_slice_11_20.gguf"
+export MODEL_PATH="Qwen_Qwen3.5-27B-Q4_K_M.gguf"
 
 python swarm_node.py --port 9001
 ```
 
 Once started, your node will automatically register with the Leader. When a prompt is processed, your machine will handle its assigned layers and forward the result, contributing to the global "Swarm" inference!
 
-## 🧪 Proof of Concept: Collaborative Qwen-27B Swarm
+## 🧪 Proof of Concept: Collaborative Qwen3.5-27B Swarm
+
+This is how we run **Qwen3.5-27B** (which normally requires ~18GB+ VRAM) across multiple consumer machines.
+
+1. **Leader Setup:** Runs the Tracker and the Entry Node (Layers 0-10).
+2. **Dynamic Discovery:** Workers join and register with the tracker for subsequent layers (11-20, 21-30, etc.).
+3. **Distributed Inference:** The hidden state tensor travels across the internet through each participant's node to complete the full 27B parameter forward pass.
 
 ## 🐳 Running with Docker (Recommended)
 
@@ -78,7 +86,7 @@ curl -X POST "http://localhost:9000/generate?prompt=Hello+Docker+Swarm"
 1. **Setup:**
    ```bash
    python3 -m venv llm_pool_venv
-   source llm_pool_venv/lib/activate
+   source llm_pool_venv/bin/activate
    pip install -r requirements.txt
    ```
 
