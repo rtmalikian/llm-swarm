@@ -10,6 +10,9 @@ All notable changes to the **LLM Swarm** project will be documented in this file
 - **Docker Support:** Added `Dockerfile` and `docker-compose.yml` for multi-platform deployment (M1 Mac, Linux, Windows).
 - **Test Suite:** Automated local mesh simulation script `test_mesh.py`.
 - **Project Documentation:** Comprehensive README with architecture overview and installation guides.
+- **Model Slicing Utility:** Added `slice_model.py` to allow nodes to host specific layer ranges of large GGUF models (e.g., Qwen-27B).
+- **Agent Integration:** Implemented OpenAI-compatible `/v1/chat/completions` endpoint for seamless use with Hermes Agent, AutoGPT, and other AI frameworks.
+- **Public Swarm Instructions:** Added detailed guides for users to join live swarms via public tracker URLs (e.g., ngrok).
 
 ### Changed
 - Moved from hardcoded peer lists to dynamic tracker-based discovery.
