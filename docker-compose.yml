@@ -1,0 +1,47 @@
+services:
+  tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile.tracker
+    ports:
+      - "12345:12345"
+    networks:
+      - swarm-net
+
+  entry-node:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    depends_on:
+      - tracker
+    environment:
+      - NODE_ID=entry_node_docker
+      - IS_ENTRY=true
+      - LAYER_START=0
+      - LAYER_END=10
+      - TRACKER_URL=http://tracker:12345
+    ports:
+      - "9000:9000"
+    networks:
+      - swarm-net
+
+  worker-node:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    depends_on:
+      - tracker
+    environment:
+      - NODE_ID=worker_node_docker
+      - IS_ENTRY=false
+      - LAYER_START=11
+      - LAYER_END=20
+      - TRACKER_URL=http://tracker:12345
+    ports:
+      - "9001:9000"
+    networks:
+      - swarm-net
+
+networks:
+  swarm-net:
+    driver: bridge

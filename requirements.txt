@@ -1,0 +1,6 @@
+llama-cpp-python
+fastapi
+uvicorn
+httpx
+pydantic
+numpy
