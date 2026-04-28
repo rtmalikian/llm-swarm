@@ -14,40 +14,41 @@
 - **Multi-Platform Docker Support:** Seamlessly run on M1 Mac, Linux (Ubuntu), and Windows.
 - **Hardware Agnostic:** Run LLMs on local hardware regardless of single-device limitations.
 
-## 🧪 Proof of Concept: Collaborative Qwen-27B Swarm
+## 🌍 Join the Public Swarm
 
-This is how we run a model like **Qwen-2.5-27B** (which normally requires ~18GB+ VRAM) across multiple consumer machines.
+The LLM Swarm is designed to be shared across the internet. If a Leader (like @rtmalikian) has shared their **Public Tracker URL**, you can join the grid in minutes.
 
-### 1. The Setup (Leader)
-The Swarm Leader (e.g., @rtmalikian) runs the Tracker and the Entry Node.
-- **Tracker:** `python tracker.py`
-- **Entry Node:** `IS_ENTRY=true LAYER_START=0 LAYER_END=10 python swarm_node.py`
-
-### 2. Slicing the Model
-Each node only needs to host a small "slice" of the model. 
+### 1. Installation
 ```bash
-# Leader slices layers 0-10
-python slice_model.py qwen27b.gguf qwen_slice_0_10.gguf 0 10
-
-# Worker A slices layers 11-20
-python slice_model.py qwen27b.gguf qwen_slice_11_20.gguf 11 20
+git clone https://github.com/rtmalikian/llm-swarm.git
+cd llm_swarm
+python3 -m venv llm_pool_venv
+source llm_pool_venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### 3. Joining the Swarm (As a Volunteer)
-If you want to contribute compute power to the Qwen swarm:
-1. Install dependencies: `pip install -r requirements.txt`
-2. Connect to the public tracker:
+### 2. Prepare your Model Slice
+You don't need the whole model! Download the GGUF and slice only the layers you want to contribute (e.g., layers 11-20).
 ```bash
-export TRACKER_URL="http://[LEADER_PUBLIC_IP]:12345"
-export NODE_ID="My_Volunteer_PC"
+# Example: Contribution layers 11-20 of Qwen-27B
+python slice_model.py Qwen_Qwen3.5-27B-Q4_K_M.gguf qwen_slice_11_20.gguf 11 20
+```
+
+### 3. Start your Worker Node
+Point your node to the Leader's Public Tracker. Replace `[TRACKER_URL]` with the link shared on X/social media.
+```bash
+export TRACKER_URL="https://your-leader-id.ngrok-free.app"
+export NODE_ID="Volunteer_Node_$(hostname)"
 export LAYER_START=11
 export LAYER_END=20
 export MODEL_PATH="qwen_slice_11_20.gguf"
+
 python swarm_node.py --port 9001
 ```
 
-### 4. Generation
-When the Leader sends a prompt, the "tensor hidden state" travels from the Leader's iMac to your PC and back, completing the 27B parameter inference collaboratively!
+Once started, your node will automatically register with the Leader. When a prompt is processed, your machine will handle its assigned layers and forward the result, contributing to the global "Swarm" inference!
+
+## 🧪 Proof of Concept: Collaborative Qwen-27B Swarm
 
 ## 🐳 Running with Docker (Recommended)
 
