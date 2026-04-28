@@ -118,7 +118,7 @@ curl -X POST "http://localhost:9000/generate?prompt=Hello+Docker+Swarm"
 
 ## 🤖 Agent Integration (OpenAI Compatible)
 
-LLM Swarm is designed to be a drop-in replacement for OpenAI-compatible APIs. This allows you to use the power of the swarm with agentic frameworks like **Hermes Agent**, **AutoGPT**, or **LangChain**.
+LLM Swarm is designed to be a drop-in replacement for OpenAI-compatible APIs. This allows you to use the power of the swarm with agentic frameworks and tools that support OpenAI endpoints, such as **Hermes Agent**, **OpenClaw**, **Continue**, **LibreChat**, **AutoGPT**, or **LangChain**.
 
 ### Connecting your Agent
 Point your agent to your Entry Node's API endpoint:
