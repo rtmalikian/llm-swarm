@@ -90,6 +90,29 @@ curl -X POST "http://localhost:9000/generate?prompt=Hello+Docker+Swarm"
 3. **Start Worker/Entry Nodes:**
    See the `test_mesh.py` or the `docker-compose.yml` for environment variable configurations.
 
+## 🤖 Agent Integration (OpenAI Compatible)
+
+LLM Swarm is designed to be a drop-in replacement for OpenAI-compatible APIs. This allows you to use the power of the swarm with agentic frameworks like **Hermes Agent**, **AutoGPT**, or **LangChain**.
+
+### Connecting your Agent
+Point your agent to your Entry Node's API endpoint:
+
+- **Base URL:** `http://localhost:9000/v1` (or your public ngrok URL)
+- **API Key:** `swarm-mesh` (any string works)
+- **Model:** `swarm-mesh-v1`
+
+### Example Request
+```bash
+curl http://localhost:9000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "swarm-mesh-v1",
+    "messages": [{"role": "user", "content": "Hello Swarm!"}]
+  }'
+```
+
+The Entry Node will receive the request, orchestrate the inference across the global mesh, and return a standard OpenAI-formatted response.
+
 ## 👤 Author
 **Raphael Malikian**  
 *Based in Palmdale, California*  
