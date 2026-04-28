@@ -51,11 +51,13 @@ def load_model_in_background():
     if config.model_path and os.path.exists(config.model_path):
         print(f"[{config.node_id}] ⏳ Starting model load: {config.model_path}")
         try:
-            # Optimize: n_ctx small, n_gpu_layers if requested
+            # Optimize: use_mmap allows loading models larger than RAM by swapping to disk
             config.llm = Llama(
                 model_path=config.model_path, 
                 n_ctx=512, 
                 n_gpu_layers=-1 if os.getenv("USE_GPU", "false").lower() == "true" else 0,
+                use_mmap=True,
+                use_mlock=False,
                 verbose=False
             )
             print(f"[{config.node_id}] ✅ Model loaded successfully!")
