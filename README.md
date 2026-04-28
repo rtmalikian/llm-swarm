@@ -130,6 +130,17 @@ curl http://localhost:9000/v1/chat/completions \
 
 The Entry Node will receive the request, orchestrate the inference across the global mesh, and return a standard OpenAI-formatted response.
 
+## 🗺️ Roadmap & TODO
+
+LLM Swarm is an experimental prototype. We are looking for contributors to help with the following:
+
+- [ ] **Security Hardening:** Implement Swarm-wide API Keys for node-to-node authentication.
+- [ ] **Encrypted Communication:** Move from raw HTTP to `libp2p` with Noise/TLS encryption.
+- [ ] **Tensor Validation:** Implement checksums and basic verification to prevent malicious nodes from poisoning the inference.
+- [ ] **Compression:** Implement tensor quantization/compression for faster transmission over slow internet connections.
+- [ ] **Dynamic Slicing:** Automated model slicing based on a volunteer's available VRAM.
+- [ ] **GUI:** A simple dashboard to see the real-time status of the swarm.
+
 ## 👤 Author
 **Raphael Malikian**  
 *Based in Palmdale, California*  
