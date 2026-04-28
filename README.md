@@ -45,10 +45,19 @@ export LAYER_START=11
 export LAYER_END=20
 export MODEL_PATH="Qwen_Qwen3.5-27B-Q4_K_M.gguf"
 
+# Optional: If you want to be reachable by others, set your public IP/URL
+# export PUBLIC_URL="http://[YOUR_PUBLIC_IP]:9001" 
+
 python swarm_node.py --port 9001
 ```
 
-Once started, your node will automatically register with the Leader. When a prompt is processed, your machine will handle its assigned layers and forward the result, contributing to the global "Swarm" inference!
+## 🌐 Hosting a Swarm (Port Forwarding)
+
+If you are hosting a Tracker or an Entry Node from home (e.g., behind an Orbi or Eero router), you must ensure your ports are reachable:
+
+1. **Tracker Port (12345):** Use a tunnel like `ngrok http 12345` or forward port `12345` (TCP) in your router settings.
+2. **Node Port (9000):** You **must** forward port `9000` (TCP) to your machine's local IP in your router's Port Forwarding dashboard. This allows tensors to travel across the internet to your node.
+3. **Public IP:** Find your public IP at `whatismyip.com` and use it in your `PUBLIC_URL` variable so others can find you.
 
 ## 🧪 Proof of Concept: Collaborative Qwen3.5-27B Swarm
 
