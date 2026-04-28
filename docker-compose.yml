@@ -14,10 +14,6 @@ services:
       dockerfile: Dockerfile.node
     depends_on:
       - tracker
-    deploy:
-      resources:
-        limits:
-          memory: 12G
     environment:
       - NODE_ID=entry_node_docker
       - IS_ENTRY=true
