@@ -62,12 +62,18 @@ python swarm_node.py --port 9001
 ## 🌐 Hosting a Swarm (Port Forwarding)
 
 ### 🚀 Leader Setup (One-Click)
-If you are the Swarm Leader (hosting the Tracker and initial layers), use the new automation script:
+If you are the Swarm Leader (hosting the Tracker and initial layers), use the automation scripts:
 
+#### Option A: Docker (Recommended for 32GB+ RAM)
 1. **Start ngrok:** `ngrok http 12345`
 2. **Launch:** `python3 launch_leader.py`
 
-This script verifies your model, checks your tunnel, and starts only the necessary services (Tracker + Entry Node).
+#### Option B: Native (Recommended for 16GB RAM / Mac M1/M2/M3)
+If you have limited RAM, running natively is much more stable as it uses your OS swap directly.
+1. **Start ngrok:** `ngrok http 12345`
+2. **Launch:** `./launch_leader_native.sh`
+
+This script verifies your environment and starts the Tracker and Entry Node directly on your machine.
 
 ### Port Forwarding Details
 If you are hosting from home (e.g., behind an Orbi or Eero router), ensure your ports are reachable:
