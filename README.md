@@ -140,6 +140,7 @@ LLM Swarm is an experimental prototype. We are looking for contributors to help 
 - [ ] **Compression:** Implement tensor quantization/compression for faster transmission over slow internet connections.
 - [ ] **Dynamic Slicing:** Automated model slicing based on a volunteer's available VRAM.
 - [ ] **GUI:** A simple dashboard to see the real-time status of the swarm.
+- [ ] **Geographic Routing:** Make the Tracker return the peer with the lowest latency (closest to you geographically) to minimize "hop" times.
 
 ## ❓ FAQ
 
