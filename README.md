@@ -141,6 +141,23 @@ LLM Swarm is an experimental prototype. We are looking for contributors to help 
 - [ ] **Dynamic Slicing:** Automated model slicing based on a volunteer's available VRAM.
 - [ ] **GUI:** A simple dashboard to see the real-time status of the swarm.
 
+## ❓ FAQ
+
+**Q: What happens if multiple people host the same layers?**
+A: The system automatically load-balances. The Tracker identifies all peers hosting a specific layer range and routes traffic accordingly. This provides **redundancy** (if one node drops, another takes over) and **scalability** (handling more requests simultaneously).
+
+**Q: Is my prompt data private?**
+A: In this prototype, data travels across nodes in the clear (HTTP). Do not use sensitive information. Future versions (v0.2.0) will implement `libp2p` with Noise/TLS encryption for end-to-end security.
+
+**Q: Does this use my GPU or CPU?**
+A: LLM Swarm uses `llama.cpp` under the hood. It will automatically use your GPU (Metal on Mac, CUDA on NVIDIA, ROCm on AMD) if available, falling back to CPU if not.
+
+**Q: How much bandwidth does this use?**
+A: Each "hop" between nodes involves sending a hidden state tensor. For Qwen3.5-27B, this is roughly a few megabytes per request. It is recommended to have a stable broadband connection.
+
+**Q: What if a node goes offline mid-generation?**
+A: Currently, the request will fail, but the Tracker will remove the stale node within 60 seconds. The next request will automatically be routed to a remaining healthy node hosting those layers.
+
 ## 👤 Author
 **Raphael Malikian**  
 *Based in Palmdale, California*  
