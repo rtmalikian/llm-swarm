@@ -6,6 +6,11 @@
 
 **LLM Swarm** is a revolutionary, open-source technology designed to put the power of Large Language Models (LLMs) back into the hands of the people. By utilizing a peer-to-peer (P2P) grid/mesh—similar to BitTorrent—LLM Swarm allows users to pool their hardware resources (RAM/VRAM) to run massive models that would otherwise require expensive cloud subscriptions or industrial-grade GPUs.
 
+## 💖 Support the Project
+If you believe in the future of decentralized AI and want to support the development of LLM Swarm, donations are greatly appreciated!
+
+**Donations (PayPal/Email):** [rtmalikian@gmail.com](mailto:rtmalikian@gmail.com)
+
 ## 🌟 Key Features
 
 - **Distributed Layer Execution:** Split large models (e.g., Qwen3.5 27B) across multiple consumer devices.
@@ -37,9 +42,11 @@ huggingface-cli download bartowski/Qwen_Qwen3.5-27B-GGUF --include "Qwen_Qwen3.5
 ```
 
 ### 3. Start your Worker Node
-Point your node to the Leader's Public Tracker. Replace `[TRACKER_URL]` with the link shared on X/social media.
+Point your node to the Leader's Public Tracker.
+
+**Example (Qwen3.5-27B POC):**
 ```bash
-export TRACKER_URL="https://your-leader-id.ngrok-free.app"
+export TRACKER_URL="https://remedy-unwatched-styling.ngrok-free.dev"
 export NODE_ID="Volunteer_Node_$(hostname)"
 export LAYER_START=11
 export LAYER_END=20
@@ -62,6 +69,8 @@ If you are hosting a Tracker or an Entry Node from home (e.g., behind an Orbi or
 ## 🧪 Proof of Concept: Collaborative Qwen3.5-27B Swarm
 
 This is how we run **Qwen3.5-27B** (which normally requires ~18GB+ VRAM) across multiple consumer machines.
+
+**Live POC Tracker:** `https://remedy-unwatched-styling.ngrok-free.dev`
 
 1. **Leader Setup:** Runs the Tracker and the Entry Node (Layers 0-10).
 2. **Dynamic Discovery:** Workers join and register with the tracker for subsequent layers (11-20, 21-30, etc.).
