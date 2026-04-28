@@ -18,7 +18,7 @@ services:
       - NODE_ID=entry_node_docker
       - IS_ENTRY=true
       - LAYER_START=0
-      - LAYER_END=10
+      - LAYER_END=4
       - TRACKER_URL=http://tracker:12345
       - MODEL_PATH=/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
     volumes:

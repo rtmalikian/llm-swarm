@@ -13,11 +13,10 @@ If you believe in the future of decentralized AI and want to support the develop
 
 ## 🌟 Key Features
 
+- **Swarm Intelligence:** Upon startup, nodes automatically probe the network to identify missing "slices" (layer ranges) and suggest exactly what the user should host to complete the mesh.
 - **Distributed Layer Execution:** Split large models (e.g., Qwen3.5 27B) across multiple consumer devices.
 - **Resource-Aware "Software Slicing":** Nodes automatically optimize RAM usage by only loading their assigned layer range into active compute buffers.
-- **Model Integrity Validation:** Automatic metadata verification ensures all peers are using the correct model architecture (e.g., Qwen3.5) before joining the mesh.
-- **P2P Pipeline Parallelism:** Tensors are passed seamlessly through a mesh of nodes for collaborative inference.
-- **Dynamic Peer Discovery:** Automatic node registration via a centralized Tracker Node.
+- **Model Integrity Validation:** Automatic metadata verification ensures all peers are using the correct model architecture.
 - **Multi-Platform Docker Support:** Seamlessly run on M1 Mac, Linux (Ubuntu), and Windows.
 
 ## 🌍 Join the Public Swarm
@@ -43,18 +42,15 @@ huggingface-cli download bartowski/Qwen_Qwen3.5-27B-GGUF --include "Qwen_Qwen3.5
 ```
 
 ### 3. Start your Worker Node
-Point your node to the Leader's Public Tracker.
+Point your node to the Leader's Public Tracker. The node will automatically probe the network and suggest a slice if you haven't set one.
 
 **Example (Qwen3.5-27B POC):**
 ```bash
 export TRACKER_URL="https://remedy-unwatched-styling.ngrok-free.dev"
 export NODE_ID="Volunteer_Node_$(hostname)"
-export LAYER_START=11
-export LAYER_END=20
+export LAYER_START=5
+export LAYER_END=10
 export MODEL_PATH="Qwen_Qwen3.5-27B-Q4_K_M.gguf"
-
-# Optional: If you want to be reachable by others, set your public IP/URL
-# export PUBLIC_URL="http://[YOUR_PUBLIC_IP]:9001" 
 
 python swarm_node.py --port 9001
 ```
@@ -62,18 +58,12 @@ python swarm_node.py --port 9001
 ## 🌐 Hosting a Swarm (Port Forwarding)
 
 ### 🚀 Leader Setup (One-Click)
-If you are the Swarm Leader (hosting the Tracker and initial layers), use the automation scripts:
+If you are the Swarm Leader (hosting the Tracker and initial layers), use the automation script:
 
-#### Option A: Docker (Recommended for 32GB+ RAM)
 1. **Start ngrok:** `ngrok http 12345`
 2. **Launch:** `python3 launch_leader.py`
 
-#### Option B: Native (Recommended for 16GB RAM / Mac M1/M2/M3)
-If you have limited RAM, running natively is much more stable as it uses your OS swap directly.
-1. **Start ngrok:** `ngrok http 12345`
-2. **Launch:** `./launch_leader_native.sh`
-
-This script verifies your environment and starts the Tracker and Entry Node directly on your machine.
+This script starts the Tracker and your Entry Node (hosting Layers 0-4).
 
 ### Port Forwarding Details
 If you are hosting from home (e.g., behind an Orbi or Eero router), ensure your ports are reachable:
@@ -97,8 +87,8 @@ This is how we run **Qwen3.5-27B** (which normally requires ~18GB+ VRAM) across 
 
 **Live POC Tracker:** `https://remedy-unwatched-styling.ngrok-free.dev`
 
-1. **Leader Setup:** Runs the Tracker and the Entry Node (Layers 0-10).
-2. **Dynamic Discovery:** Workers join and register with the tracker for subsequent layers (11-20, 21-30, etc.).
+1. **Leader Setup:** Runs the Tracker and the Entry Node (Layers 0-4).
+2. **Dynamic Discovery:** Workers join and register with the tracker for subsequent layers (5-10, 11-15, etc.).
 3. **Distributed Inference:** The hidden state tensor travels across the internet through each participant's node to complete the full 27B parameter forward pass.
 
 ## 🐳 Running with Docker (Recommended)

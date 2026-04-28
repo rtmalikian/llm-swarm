@@ -50,7 +50,7 @@ def main():
     print("-" * 40)
     print(f"🌟 SWARM IS LIVE 🌟")
     print(f"Tracker: {public_url}")
-    print(f"Entry Node: localhost:9000 (Layers 0-10)")
+    print(f"Entry Node: localhost:9000 (Layers 0-4)")
     print("-" * 40)
     print("To view logs, run: docker-compose logs -f")
 

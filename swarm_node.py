@@ -78,9 +78,60 @@ def load_model_in_background():
     else:
         print(f"[{config.node_id}] ⚠️ No model found at {config.model_path}")
 
+async def probe_network():
+    """Probe the tracker to see which slices are missing from the swarm."""
+    print(f"\n--- 🛰️  Swarm Network Probe ---")
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(f"{config.tracker_url}/coverage")
+            if resp.status_code == 200:
+                data = resp.json()
+                total = data["total_layers"]
+                coverage = data["coverage"]
+                active = data["active_peers"]
+                
+                print(f"Active Peers: {active}")
+                print(f"Total Model Layers: {total}")
+                
+                gaps = []
+                current_gap = None
+                
+                for i in range(total):
+                    if coverage.get(str(i), 0) == 0:
+                        if current_gap is None:
+                            current_gap = [i, i]
+                        else:
+                            current_gap[1] = i
+                    else:
+                        if current_gap is not None:
+                            gaps.append(current_gap)
+                            current_gap = None
+                if current_gap is not None:
+                    gaps.append(current_gap)
+                
+                if not gaps:
+                    print("✅ ALL LAYERS COVERED! The swarm is complete.")
+                    print("💡 Recommendation: Host any slice to provide redundancy and speed.")
+                else:
+                    print(f"❌ GAPS DETECTED: {len(gaps)} segments of the model are missing.")
+                    print("💡 SUGGESTED SLICES TO HOST:")
+                    for g in gaps[:3]: # Show top 3 gaps
+                        print(f"   👉 Layers {g[0]} to {g[1]}")
+                
+                print("\n📣 INVITE MORE VOLUNTEERS:")
+                print(f"   Share this Tracker URL: {config.tracker_url}")
+                print(f"-------------------------------\n")
+            else:
+                print("⚠️  Could not fetch coverage data from tracker.")
+    except Exception as e:
+        print(f"⚠️  Network probe failed: {e}")
+
 @app.on_event("startup")
 async def startup_event():
-    # 1. Start Model Load in Background Thread
+    # 1. Probe Network (Non-blocking)
+    asyncio.create_task(probe_network())
+
+    # 2. Start Model Load in Background Thread
     threading.Thread(target=load_model_in_background, daemon=True).start()
 
     # 2. Register with Tracker

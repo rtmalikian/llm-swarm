@@ -13,6 +13,7 @@ class PeerInfo(BaseModel):
     model_id: str
     layer_start: int
     layer_end: int
+    total_layers: int = 60
     last_seen: float = 0.0
 
 # In-memory database of peers
@@ -49,6 +50,28 @@ async def heartbeat(node_id: str):
 @app.get("/peers")
 async def list_peers():
     return list(peers_db.values())
+
+@app.get("/coverage")
+async def get_coverage():
+    """Return a map of layer coverage to help nodes identify gaps."""
+    coverage = {}
+    total_layers = 60
+    if peers_db:
+        total_layers = list(peers_db.values())[0].total_layers
+        
+    for i in range(total_layers):
+        coverage[i] = 0
+        
+    for peer in peers_db.values():
+        for i in range(peer.layer_start, peer.layer_end + 1):
+            if i in coverage:
+                coverage[i] += 1
+    
+    return {
+        "total_layers": total_layers,
+        "coverage": coverage,
+        "active_peers": len(peers_db)
+    }
 
 @app.get("/find_peer")
 async def find_peer(model_id: str, layer: int):
