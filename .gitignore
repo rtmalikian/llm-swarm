@@ -1,0 +1,6 @@
+llm-swarm-tweets/
+llm_pool_venv/
+__pycache__/
+*.gguf
+*.log
+.DS_Store
