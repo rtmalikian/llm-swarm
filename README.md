@@ -75,6 +75,15 @@ If you are hosting from home (e.g., behind an Orbi or Eero router), ensure your 
 2. **Node Port (9000):** You **must** forward port `9000` (TCP) to your machine's local IP. This allows tensors to travel across the internet.
 3. **Public IP:** Find your public IP at `whatismyip.com` and use it in your `PUBLIC_URL` variable.
 
+## ⚡ Performance: The "BitTorrent" for Inference
+
+LLM Swarm is designed to be fast by leveraging the collective power of the grid. While a single device might struggle, a mesh of devices excels:
+
+- **Distributed Workload:** Instead of one machine computing 27B parameters, each node only handles a small "slice" (e.g., 5-10 layers).
+- **Heterogeneous Hardware:** The mesh automatically utilizes the best of all worlds. Volunteers with high-end GPUs (VRAM) provide rapid execution for their slices, while others contribute stable CPU/RAM compute.
+- **Unified Memory Optimization:** On platforms like Apple Silicon (M1/M2/M3), the swarm utilizes Unified Memory to accelerate inference even when models exceed traditional VRAM limits.
+- **The "Mesh" Advantage:** As the swarm grows, the Tracker can route traffic through the fastest available paths, minimizing latency and maximizing throughput.
+
 ## 🧪 Proof of Concept: Collaborative Qwen3.5-27B Swarm
 
 This is how we run **Qwen3.5-27B** (which normally requires ~18GB+ VRAM) across multiple consumer machines.
