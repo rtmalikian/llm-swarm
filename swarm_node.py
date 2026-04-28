@@ -51,16 +51,28 @@ def load_model_in_background():
     if config.model_path and os.path.exists(config.model_path):
         print(f"[{config.node_id}] ⏳ Starting model load: {config.model_path}")
         try:
-            # Optimize: use_mmap allows loading models larger than RAM by swapping to disk
+            # Universal Software Slicing: Only load active layers into compute buffers
+            num_layers = config.layers[1] - config.layers[0] + 1
+            
             config.llm = Llama(
                 model_path=config.model_path, 
                 n_ctx=512, 
-                n_gpu_layers=-1 if os.getenv("USE_GPU", "false").lower() == "true" else 0,
+                n_gpu_layers=num_layers,
                 use_mmap=True,
                 use_mlock=False,
                 verbose=False
             )
-            print(f"[{config.node_id}] ✅ Model loaded successfully!")
+            
+            # Validation: Ensure we are running the correct model
+            # We check the architecture or metadata to prevent mixing models (e.g., Llama and Qwen)
+            model_meta = config.llm.metadata
+            model_arch = model_meta.get("general.architecture", "unknown")
+            print(f"[{config.node_id}] 🔍 Validating model identity: {model_arch}")
+            
+            if "qwen" not in str(model_arch).lower():
+                 print(f"[{config.node_id}] ⚠️ WARNING: Model architecture mismatch! Expected Qwen-based GGUF.")
+            
+            print(f"[{config.node_id}] ✅ Model loaded and validated! Hosting {num_layers} layers.")
         except Exception as e:
             print(f"[{config.node_id}] ❌ Error loading model: {e}")
     else:

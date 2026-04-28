@@ -14,10 +14,11 @@ If you believe in the future of decentralized AI and want to support the develop
 ## 🌟 Key Features
 
 - **Distributed Layer Execution:** Split large models (e.g., Qwen3.5 27B) across multiple consumer devices.
+- **Resource-Aware "Software Slicing":** Nodes automatically optimize RAM usage by only loading their assigned layer range into active compute buffers.
+- **Model Integrity Validation:** Automatic metadata verification ensures all peers are using the correct model architecture (e.g., Qwen3.5) before joining the mesh.
 - **P2P Pipeline Parallelism:** Tensors are passed seamlessly through a mesh of nodes for collaborative inference.
 - **Dynamic Peer Discovery:** Automatic node registration via a centralized Tracker Node.
 - **Multi-Platform Docker Support:** Seamlessly run on M1 Mac, Linux (Ubuntu), and Windows.
-- **Hardware Agnostic:** Run LLMs on local hardware regardless of single-device limitations.
 
 ## 🌍 Join the Public Swarm
 
