@@ -14,13 +14,40 @@
 - **Multi-Platform Docker Support:** Seamlessly run on M1 Mac, Linux (Ubuntu), and Windows.
 - **Hardware Agnostic:** Run LLMs on local hardware regardless of single-device limitations.
 
-## 🏗️ Architecture
+## 🧪 Proof of Concept: Collaborative Qwen-27B Swarm
 
-LLM Swarm operates on a **Pooled Compute** model with dynamic discovery.
+This is how we run a model like **Qwen-2.5-27B** (which normally requires ~18GB+ VRAM) across multiple consumer machines.
 
-1. **Tracker Node:** A central "phonebook" that maintains the registry of all active peers and their hosted layers.
-2. **Entry Node:** Tokenizes the prompt, queries the Tracker to build a pipeline, and initiates the "Swarm."
-3. **Worker Nodes:** Receive hidden state tensors, process them, query the Tracker for the *next* peer in the sequence, and forward the data.
+### 1. The Setup (Leader)
+The Swarm Leader (e.g., @rtmalikian) runs the Tracker and the Entry Node.
+- **Tracker:** `python tracker.py`
+- **Entry Node:** `IS_ENTRY=true LAYER_START=0 LAYER_END=10 python swarm_node.py`
+
+### 2. Slicing the Model
+Each node only needs to host a small "slice" of the model. 
+```bash
+# Leader slices layers 0-10
+python slice_model.py qwen27b.gguf qwen_slice_0_10.gguf 0 10
+
+# Worker A slices layers 11-20
+python slice_model.py qwen27b.gguf qwen_slice_11_20.gguf 11 20
+```
+
+### 3. Joining the Swarm (As a Volunteer)
+If you want to contribute compute power to the Qwen swarm:
+1. Install dependencies: `pip install -r requirements.txt`
+2. Connect to the public tracker:
+```bash
+export TRACKER_URL="http://[LEADER_PUBLIC_IP]:12345"
+export NODE_ID="My_Volunteer_PC"
+export LAYER_START=11
+export LAYER_END=20
+export MODEL_PATH="qwen_slice_11_20.gguf"
+python swarm_node.py --port 9001
+```
+
+### 4. Generation
+When the Leader sends a prompt, the "tensor hidden state" travels from the Leader's iMac to your PC and back, completing the 27B parameter inference collaboratively!
 
 ## 🐳 Running with Docker (Recommended)
 

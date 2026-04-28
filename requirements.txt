@@ -4,3 +4,4 @@ uvicorn
 httpx
 pydantic
 numpy
+gguf
