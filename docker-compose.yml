@@ -20,6 +20,9 @@ services:
       - LAYER_START=0
       - LAYER_END=10
       - TRACKER_URL=http://tracker:12345
+      - MODEL_PATH=/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
+    volumes:
+      - ./Qwen_Qwen3.5-27B-Q4_K_M.gguf:/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
     ports:
       - "9000:9000"
     networks:
@@ -37,6 +40,9 @@ services:
       - LAYER_START=11
       - LAYER_END=20
       - TRACKER_URL=http://tracker:12345
+      - MODEL_PATH=/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
+    volumes:
+      - ./Qwen_Qwen3.5-27B-Q4_K_M.gguf:/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
     ports:
       - "9001:9000"
     networks:

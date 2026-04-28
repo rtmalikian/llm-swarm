@@ -46,15 +46,28 @@ def heartbeat_task():
             pass
         time.sleep(20)
 
-@app.on_event("startup")
-async def startup_event():
+def load_model_in_background():
     # 1. Load Model (if any)
     if config.model_path and os.path.exists(config.model_path):
-        print(f"[{config.node_id}] Loading model: {config.model_path}")
+        print(f"[{config.node_id}] ⏳ Starting model load: {config.model_path}")
         try:
-            config.llm = Llama(model_path=config.model_path, n_ctx=512, verbose=False)
+            # Optimize: n_ctx small, n_gpu_layers if requested
+            config.llm = Llama(
+                model_path=config.model_path, 
+                n_ctx=512, 
+                n_gpu_layers=-1 if os.getenv("USE_GPU", "false").lower() == "true" else 0,
+                verbose=False
+            )
+            print(f"[{config.node_id}] ✅ Model loaded successfully!")
         except Exception as e:
-            print(f"Error loading model: {e}")
+            print(f"[{config.node_id}] ❌ Error loading model: {e}")
+    else:
+        print(f"[{config.node_id}] ⚠️ No model found at {config.model_path}")
+
+@app.on_event("startup")
+async def startup_event():
+    # 1. Start Model Load in Background Thread
+    threading.Thread(target=load_model_in_background, daemon=True).start()
 
     # 2. Register with Tracker
     registration_data = {
@@ -64,12 +77,14 @@ async def startup_event():
         "layer_start": config.layers[0],
         "layer_end": config.layers[1]
     }
+    
+    # We try to register immediately so the tracker knows we are "Coming Soon"
     try:
         async with httpx.AsyncClient() as client:
             await client.post(f"{config.tracker_url}/register", json=registration_data)
-            print(f"[{config.node_id}] Registered with tracker at {config.tracker_url}")
+            print(f"[{config.node_id}] 📡 Registered with tracker at {config.tracker_url}")
     except Exception as e:
-        print(f"[{config.node_id}] Failed to register with tracker: {e}")
+        print(f"[{config.node_id}] ❌ Failed to register with tracker: {e}")
 
     # 3. Start Heartbeat Thread
     threading.Thread(target=heartbeat_task, daemon=True).start()

@@ -60,11 +60,20 @@ python swarm_node.py --port 9001
 
 ## 🌐 Hosting a Swarm (Port Forwarding)
 
-If you are hosting a Tracker or an Entry Node from home (e.g., behind an Orbi or Eero router), you must ensure your ports are reachable:
+### 🚀 Leader Setup (One-Click)
+If you are the Swarm Leader (hosting the Tracker and initial layers), use the new automation script:
 
-1. **Tracker Port (12345):** Use a tunnel like `ngrok http 12345` or forward port `12345` (TCP) in your router settings.
-2. **Node Port (9000):** You **must** forward port `9000` (TCP) to your machine's local IP in your router's Port Forwarding dashboard. This allows tensors to travel across the internet to your node.
-3. **Public IP:** Find your public IP at `whatismyip.com` and use it in your `PUBLIC_URL` variable so others can find you.
+1. **Start ngrok:** `ngrok http 12345`
+2. **Launch:** `python3 launch_leader.py`
+
+This script verifies your model, checks your tunnel, and starts only the necessary services (Tracker + Entry Node).
+
+### Port Forwarding Details
+If you are hosting from home (e.g., behind an Orbi or Eero router), ensure your ports are reachable:
+
+1. **Tracker Port (12345):** Use `ngrok http 12345` or forward port `12345` (TCP).
+2. **Node Port (9000):** You **must** forward port `9000` (TCP) to your machine's local IP. This allows tensors to travel across the internet.
+3. **Public IP:** Find your public IP at `whatismyip.com` and use it in your `PUBLIC_URL` variable.
 
 ## 🧪 Proof of Concept: Collaborative Qwen3.5-27B Swarm
 
@@ -78,7 +87,12 @@ This is how we run **Qwen3.5-27B** (which normally requires ~18GB+ VRAM) across 
 
 ## 🐳 Running with Docker (Recommended)
 
-The easiest way to migrate and run LLM Swarm on any OS (Mac M1, Linux, Windows) is using Docker.
+The easiest way to run LLM Swarm is using Docker.
+
+**Note on Optimization:** The Docker setup uses **Volumes**. Large `.gguf` model files are mounted directly from your host into the container.
+- **No Disk Waste:** The model isn't copied into the Docker image.
+- **Instant Builds:** Rebuilding the container takes seconds, regardless of model size.
+- **Persistence:** Logs and registrations stay consistent.
 
 ### 1. Build and Start the Mesh
 ```bash

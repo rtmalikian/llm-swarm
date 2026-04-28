@@ -1,0 +1,8 @@
+*.gguf
+*.bin
+.git
+.cache
+llm_pool_venv
+llm-swarm-tweets
+Dockerfile*
+docker-compose.yml
