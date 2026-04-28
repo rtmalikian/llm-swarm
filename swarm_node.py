@@ -27,7 +27,7 @@ class NodeConfig:
     def __init__(self, port):
         self.node_id = os.getenv("NODE_ID", f"node_{port}")
         self.port = port
-        self.url = f"http://localhost:{port}"
+        self.url = os.getenv("PUBLIC_URL", f"http://localhost:{port}")
         self.tracker_url = os.getenv("TRACKER_URL", "http://localhost:12345")
         self.model_path = os.getenv("MODEL_PATH", "")
         self.model_id = os.getenv("MODEL_ID", "swarm-mesh-v1")
