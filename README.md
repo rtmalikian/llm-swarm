@@ -197,6 +197,8 @@ A: Currently, the request will fail, but the Tracker will remove the stale node 
 *Based in Palmdale, California*  
 A visionary developer focused on decentralizing AI and making advanced technology accessible to everyone.
 
+**X (Twitter):** [@rtmalikian](https://x.com/rtmalikian)
+
 ## 💖 Support the Project
 If you believe in the future of decentralized AI and want to support the development of LLM Swarm, donations are greatly appreciated!
 
