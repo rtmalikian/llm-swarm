@@ -1,9 +1,10 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import time
 import threading
+from auth_utils import require_swarm_api_key
 
 app = FastAPI()
 
@@ -33,25 +34,25 @@ def cleanup_stale_peers():
 def start_cleanup_thread():
     threading.Thread(target=cleanup_stale_peers, daemon=True).start()
 
-@app.post("/register")
+@app.post("/register", dependencies=[Depends(require_swarm_api_key)])
 async def register_peer(peer: PeerInfo):
     peer.last_seen = time.time()
     peers_db[peer.node_id] = peer
     print(f"[Tracker] Registered/Updated peer: {peer.node_id} ({peer.url}) layers {peer.layer_start}-{peer.layer_end}")
     return {"status": "registered"}
 
-@app.post("/heartbeat")
+@app.post("/heartbeat", dependencies=[Depends(require_swarm_api_key)])
 async def heartbeat(node_id: str):
     if node_id in peers_db:
         peers_db[node_id].last_seen = time.time()
         return {"status": "ok"}
     raise HTTPException(status_code=404, detail="Peer not found")
 
-@app.get("/peers")
+@app.get("/peers", dependencies=[Depends(require_swarm_api_key)])
 async def list_peers():
     return list(peers_db.values())
 
-@app.get("/coverage")
+@app.get("/coverage", dependencies=[Depends(require_swarm_api_key)])
 async def get_coverage():
     """Return a map of layer coverage to help nodes identify gaps."""
     coverage = {}
@@ -73,7 +74,7 @@ async def get_coverage():
         "active_peers": len(peers_db)
     }
 
-@app.get("/find_peer")
+@app.get("/find_peer", dependencies=[Depends(require_swarm_api_key)])
 async def find_peer(model_id: str, layer: int):
     # Find a peer that hosts the requested layer
     for peer in peers_db.values():

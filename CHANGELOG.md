@@ -2,6 +2,10 @@
 
 All notable changes to the **LLM Swarm** project will be documented in this file.
 
+## [Unreleased]
+### Security
+- Added optional `SWARM_API_KEY` bearer authentication for tracker requests and node-to-node layer processing.
+
 ## [0.1.0] - 2026-04-28
 ### Added
 - **Initial Prototype:** Core P2P Pooled Compute architecture implemented in Python.

@@ -3,7 +3,7 @@ import uvicorn
 import httpx
 import asyncio
 import numpy as np
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from pydantic import BaseModel
 from typing import List, Optional
 import os
@@ -11,6 +11,7 @@ import json
 import threading
 import time
 from llama_cpp import Llama
+from auth_utils import auth_headers, require_swarm_api_key
 
 app = FastAPI()
 
@@ -41,7 +42,7 @@ def heartbeat_task():
     """Periodically send heartbeat to the tracker."""
     while True:
         try:
-            httpx.post(f"{config.tracker_url}/heartbeat?node_id={config.node_id}")
+            httpx.post(f"{config.tracker_url}/heartbeat?node_id={config.node_id}", headers=auth_headers())
         except Exception:
             pass
         time.sleep(20)
@@ -83,7 +84,7 @@ async def probe_network():
     print(f"\n--- 🛰️  Swarm Network Probe ---")
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{config.tracker_url}/coverage")
+            resp = await client.get(f"{config.tracker_url}/coverage", headers=auth_headers())
             if resp.status_code == 200:
                 data = resp.json()
                 total = data["total_layers"]
@@ -146,7 +147,7 @@ async def startup_event():
     # We try to register immediately so the tracker knows we are "Coming Soon"
     try:
         async with httpx.AsyncClient() as client:
-            await client.post(f"{config.tracker_url}/register", json=registration_data)
+            await client.post(f"{config.tracker_url}/register", json=registration_data, headers=auth_headers())
             print(f"[{config.node_id}] 📡 Registered with tracker at {config.tracker_url}")
     except Exception as e:
         print(f"[{config.node_id}] ❌ Failed to register with tracker: {e}")
@@ -154,7 +155,7 @@ async def startup_event():
     # 3. Start Heartbeat Thread
     threading.Thread(target=heartbeat_task, daemon=True).start()
 
-@app.post("/process_layers")
+@app.post("/process_layers", dependencies=[Depends(require_swarm_api_key)])
 async def process_layers(state: LayerState):
     print(f"[{config.node_id}] Swarm processing layers {config.layers[0]}-{config.layers[1]}")
     
@@ -173,7 +174,7 @@ async def process_layers(state: LayerState):
     if next_peer_url:
         print(f"[{config.node_id}] Forwarding to next peer: {next_peer_url}")
         async with httpx.AsyncClient() as client:
-            await client.post(f"{next_peer_url}/process_layers", json=new_state.model_dump())
+            await client.post(f"{next_peer_url}/process_layers", json=new_state.model_dump(), headers=auth_headers())
         return {"status": "forwarded", "next": next_peer_url}
     else:
         print(f"[{config.node_id}] No more peers. Pipeline complete.")
@@ -183,7 +184,7 @@ async def find_next_peer(model_id: str, target_layer: int) -> Optional[str]:
     """Query tracker for the next peer in the chain."""
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{config.tracker_url}/find_peer", params={"model_id": model_id, "layer": target_layer})
+            resp = await client.get(f"{config.tracker_url}/find_peer", params={"model_id": model_id, "layer": target_layer}, headers=auth_headers())
             if resp.status_code == 200:
                 return resp.json()["url"]
     except Exception:
@@ -218,7 +219,7 @@ async def generate(prompt: str):
     next_peer_url = await find_next_peer(config.model_id, config.layers[1] + 1)
     if next_peer_url:
         async with httpx.AsyncClient() as client:
-            resp = await client.post(f"{next_peer_url}/process_layers", json=state.model_dump())
+            resp = await client.post(f"{next_peer_url}/process_layers", json=state.model_dump(), headers=auth_headers())
             return resp.json()
     
     return {"error": "No peers found to complete the chain"}

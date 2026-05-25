@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile.tracker
     ports:
       - "12345:12345"
+    environment:
+      - SWARM_API_KEY=${SWARM_API_KEY:-}
     networks:
       - swarm-net
 
@@ -20,6 +22,7 @@ services:
       - LAYER_START=0
       - LAYER_END=4
       - TRACKER_URL=http://tracker:12345
+      - SWARM_API_KEY=${SWARM_API_KEY:-}
       - MODEL_PATH=/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
     volumes:
       - ./Qwen_Qwen3.5-27B-Q4_K_M.gguf:/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
@@ -40,6 +43,7 @@ services:
       - LAYER_START=11
       - LAYER_END=20
       - TRACKER_URL=http://tracker:12345
+      - SWARM_API_KEY=${SWARM_API_KEY:-}
       - MODEL_PATH=/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
     volumes:
       - ./Qwen_Qwen3.5-27B-Q4_K_M.gguf:/app/models/Qwen_Qwen3.5-27B-Q4_K_M.gguf
