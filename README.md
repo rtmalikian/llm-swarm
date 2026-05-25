@@ -47,6 +47,7 @@ Point your node to the Leader's Public Tracker. The node will automatically prob
 **Example (Qwen3.5-27B POC):**
 ```bash
 export TRACKER_URL="https://remedy-unwatched-styling.ngrok-free.dev"
+export SWARM_API_KEY="ask-the-swarm-leader-for-this-shared-key"  # Optional, but recommended for public swarms
 export NODE_ID="Volunteer_Node_$(hostname)"
 export LAYER_START=5
 export LAYER_END=10
@@ -64,6 +65,11 @@ If you are the Swarm Leader (hosting the Tracker and initial layers), use the au
 2. **Launch:** `python3 launch_leader.py`
 
 This script starts the Tracker and your Entry Node (hosting Layers 0-4).
+
+For public swarms, set `SWARM_API_KEY` to the same shared secret on the tracker
+and every node before launching. When set, tracker control-plane requests and
+node-to-node layer processing require `Authorization: Bearer <SWARM_API_KEY>`;
+leaving it unset preserves unauthenticated local development behavior.
 
 ### Port Forwarding Details
 If you are hosting from home (e.g., behind an Orbi or Eero router), ensure your ports are reachable:
@@ -102,6 +108,11 @@ The easiest way to run LLM Swarm is using Docker.
 
 ### 1. Build and Start the Mesh
 ```bash
+docker-compose up --build
+```
+To enable shared-key authentication in Docker, export `SWARM_API_KEY` first:
+```bash
+export SWARM_API_KEY="replace-with-a-long-random-secret"
 docker-compose up --build
 ```
 This command starts:
@@ -163,7 +174,7 @@ The Entry Node will receive the request, orchestrate the inference across the gl
 
 LLM Swarm is an experimental prototype. We are looking for contributors to help with the following:
 
-- [ ] **Security Hardening:** Implement Swarm-wide API Keys for node-to-node authentication.
+- [x] **Security Hardening:** Implement Swarm-wide API Keys for tracker and node-to-node authentication via `SWARM_API_KEY`.
 - [ ] **Encrypted Communication:** Move from raw HTTP to `libp2p` with Noise/TLS encryption.
 - [ ] **Tensor Validation:** Implement checksums and basic verification to prevent malicious nodes from poisoning the inference.
 - [ ] **Compression:** Implement tensor quantization/compression for faster transmission over slow internet connections.
