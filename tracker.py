@@ -1,11 +1,19 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+import os
+from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import time
 import threading
 
-app = FastAPI()
+SWARM_API_KEY = os.getenv("SWARM_API_KEY", "")
+
+async def verify_swarm_key(x_swarm_key: str = Header(default="")):
+    """Dependency that enforces the shared swarm secret on every request."""
+    if SWARM_API_KEY and x_swarm_key != SWARM_API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing X-Swarm-Key header.")
+
+app = FastAPI(dependencies=[Depends(verify_swarm_key)])
 
 class PeerInfo(BaseModel):
     node_id: str

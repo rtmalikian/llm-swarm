@@ -2,6 +2,12 @@
 
 All notable changes to the **LLM Swarm** project will be documented in this file.
 
+## [0.2.0] - 2026-06-02
+### Security
+- **Swarm API Key Authentication:** Implemented shared-secret `X-Swarm-Key` header validation on all tracker and node endpoints. When `SWARM_API_KEY` is set, unauthorized requests are rejected with `401`. Backward-compatible: unset key allows open access.
+- All outgoing node-to-tracker and node-to-node HTTP calls now include the `X-Swarm-Key` header automatically.
+- Updated `docker-compose.yml` to propagate `SWARM_API_KEY` to all services.
+
 ## [0.1.0] - 2026-04-28
 ### Added
 - **Initial Prototype:** Core P2P Pooled Compute architecture implemented in Python.

@@ -159,11 +159,51 @@ curl http://localhost:9000/v1/chat/completions \
 
 The Entry Node will receive the request, orchestrate the inference across the global mesh, and return a standard OpenAI-formatted response.
 
+## 🔐 Swarm API Key (Node Authentication)
+
+LLM Swarm supports a shared-secret API key to prevent unauthorized nodes from joining your mesh or sending unauthenticated requests.
+
+**How it works:**
+- All nodes and the Tracker check for an `X-Swarm-Key` HTTP header on every request.
+- If `SWARM_API_KEY` is set, requests without a matching key are rejected with `401 Unauthorized`.
+- If `SWARM_API_KEY` is empty or unset, the swarm operates without authentication (backward-compatible).
+
+**Usage:**
+
+```bash
+# Set the same key on every node and the tracker
+export SWARM_API_KEY="your-secret-swarm-key"
+
+# Start tracker and nodes as usual — they will automatically include the key in all requests
+python tracker.py
+python swarm_node.py --port 9000
+```
+
+**Docker:**
+
+```bash
+# Pass via environment variable (all services read it automatically)
+SWARM_API_KEY="your-secret-key" docker-compose up --build
+```
+
+**Testing unauthorized access:**
+
+```bash
+# Without key — should return 401
+curl http://localhost:12345/peers
+# → {"detail":"Invalid or missing X-Swarm-Key header."}
+
+# With key — should return peer list
+curl -H "X-Swarm-Key: your-secret-swarm-key" http://localhost:12345/peers
+```
+
+---
+
 ## 🗺️ Roadmap & TODO
 
 LLM Swarm is an experimental prototype. We are looking for contributors to help with the following:
 
-- [ ] **Security Hardening:** Implement Swarm-wide API Keys for node-to-node authentication.
+- [ ] **Security Hardening:** Implement Swarm-wide API Keys for node-to-node authentication. ✅ *Implemented in v0.2.0*
 - [ ] **Encrypted Communication:** Move from raw HTTP to `libp2p` with Noise/TLS encryption.
 - [ ] **Tensor Validation:** Implement checksums and basic verification to prevent malicious nodes from poisoning the inference.
 - [ ] **Compression:** Implement tensor quantization/compression for faster transmission over slow internet connections.

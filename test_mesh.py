@@ -5,8 +5,13 @@ import httpx
 import asyncio
 
 def run_local_mesh():
+    # Shared key for authentication (set before starting processes)
+    os.environ.setdefault("SWARM_API_KEY", "test-swarm-secret")
+    swarm_key = os.environ["SWARM_API_KEY"]
+    headers = {"X-Swarm-Key": swarm_key}
+
     # 1. Start Tracker (Default port 12345)
-    tracker_proc = subprocess.Popen(["llm_pool_venv/bin/python", "tracker.py"])
+    tracker_proc = subprocess.Popen(["llm_pool_venv/bin/python", "tracker.py"], env=os.environ.copy())
     print("[Test] Started Tracker Node on port 12345")
     time.sleep(3) # Wait for tracker to be ready
 
@@ -40,12 +45,12 @@ def run_local_mesh():
         async def test_gen():
             async with httpx.AsyncClient() as client:
                 # Query tracker to see registered peers
-                peers_resp = await client.get("http://localhost:12345/peers")
+                peers_resp = await client.get("http://localhost:12345/peers", headers=headers)
                 print(f"[Test] Tracker Registered Peers: {peers_resp.json()}")
 
                 # Trigger generation on entry node
                 print("[Test] Sending generation request to entry node...")
-                response = await client.post("http://localhost:9000/generate?prompt=Hello+Discovery", timeout=30.0)
+                response = await client.post("http://localhost:9000/generate?prompt=Hello+Discovery", timeout=30.0, headers=headers)
                 print(f"[Test] Swarm Response: {response.json()}")
 
         asyncio.run(test_gen())
